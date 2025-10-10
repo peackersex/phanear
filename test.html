@@ -1,70 +1,311 @@
-import React, { useState } from "react";
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phanear - Abstractly Yours</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
-// Phanear - Single-file React App (Expanded) // - Tailwind CSS assumed // - Single component that contains simple client-side "routing" (home, product, cart, checkout) // - Fake product dataset included; replace with your API or CMS // - Usage: Drop into a React app as PhanearApp.jsx and render <PhanearApp />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
 
-export default function PhanearApp() { // --- Sample product data --- const PRODUCTS = [ { id: 1, name: "Phanear Summit Jacket", price: 1250000, desc: "Lightweight, windproof jacket for alpine conditions.", img: "/images/jacket.jpg", category: "Jackets" }, { id: 2, name: "Phanear Trail Pack 25L", price: 450000, desc: "Compact daypack with ventilated back panel.", img: "/images/pack.jpg", category: "Bags" }, { id: 3, name: "Phanear Trek Boots", price: 875000, desc: "Durable outsole and waterproof membrane.", img: "/images/boots.jpg", category: "Footwear" }, { id: 4, name: "Phanear Fleece", price: 350000, desc: "Cozy mid-layer for chilly evenings.", img: "/images/fleece.jpg", category: "Fleece" }, { id: 5, name: "Phanear Beanie", price: 125000, desc: "Warm knit beanie with logo patch.", img: "/images/beanie.jpg", category: "Accessories" }, { id: 6, name: "Phanear Hoodie", price: 299000, desc: "Everyday hoodie made from organic cotton.", img: "/images/hoodie.jpg", category: "Men" } ];
+    <style>
+        /* CSS (Cascading Style Sheets) untuk Desain Visual */
 
-// --- App state --- const [route, setRoute] = useState({ page: 'home', params: {} }); const [cart, setCart] = useState([]); // {productId, qty}
+        /* 1. Pengaturan Global & Variabel Warna */
+        :root {
+            --bg-color: #1A1A1A; /* Hitam Arang */
+            --text-color: #F5F5F5; /* Putih Gading */
+            --accent-color: #CC5500; /* Oranye Terbakar */
+            --secondary-text: #a0a0a0;
+            --card-bg: #2a2a2a;
+        }
 
-// --- Helpers --- const priceFmt = (v) => { return v.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }); };
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-const addToCart = (productId, qty = 1) => { setCart(prev => { const found = prev.find(p => p.productId === productId); if (found) return prev.map(p => p.productId === productId ? { ...p, qty: p.qty + qty } : p); return [...prev, { productId, qty }]; }); };
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
 
-const updateQty = (productId, qty) => { if (qty <= 0) { setCart(prev => prev.filter(p => p.productId !== productId)); } else { setCart(prev => prev.map(p => p.productId === productId ? { ...p, qty } : p)); } };
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
 
-const clearCart = () => setCart([]);
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
 
-const cartItemsDetailed = cart.map(item => { const product = PRODUCTS.find(p => p.id === item.productId); return { ...item, product }; });
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        section {
+            padding: 6rem 0;
+        }
 
-const cartTotal = cartItemsDetailed.reduce((s, it) => s + (it.product.price * it.qty), 0);
+        /* 2. Header & Navigasi */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
 
-// --- Simple "router" views --- const Nav = () => ( <header className="bg-white shadow"> <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div className="flex justify-between items-center py-4"> <div className="flex items-center gap-6"> <div onClick={() => setRoute({ page: 'home', params: {} })} className="flex items-center gap-2 cursor-pointer"> <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold">P</div> <span className="font-semibold text-lg">Phanear</span> </div> <nav className="hidden md:flex gap-6 text-sm text-gray-700"> <button onClick={() => setRoute({ page: 'home', params: {} })} className="hover:underline">Home</button> <button onClick={() => setRoute({ page: 'catalog', params: { filter: 'Men' } })} className="hover:underline">Men</button> <button onClick={() => setRoute({ page: 'catalog', params: { filter: 'Women' } })} className="hover:underline">Women</button> <button onClick={() => setRoute({ page: 'catalog', params: { filter: 'Bags' } })} className="hover:underline">Bags</button> <button onClick={() => setRoute({ page: 'sale', params: {} })} className="text-red-600 font-medium">Sale</button> </nav> </div> <div className="flex items-center gap-4"> <button className="text-sm">Search</button> <button className="text-sm">Account</button> <button onClick={() => setRoute({ page: 'cart', params: {} })} className="text-sm">Cart ({cart.reduce((s, i) => s + i.qty, 0)})</button> </div> </div> </div> </header> );
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
 
-const Home = () => ( <div> {/* Hero */} <section className="relative bg-white"> <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div className="flex flex-col lg:flex-row items-center gap-8 py-16"> <div className="lg:w-1/2"> <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight">Built for every outdoor story</h1> <p className="mt-4 text-lg text-gray-600">Discover Phanear — gear engineered for the climb, the trail, and everything in between.</p> <div className="mt-6 flex gap-3"> <button onClick={() => setRoute({ page: 'catalog', params: {} })} className="inline-block px-6 py-3 bg-black text-white rounded-md font-medium">Shop Now</button> <button onClick={() => setRoute({ page: 'story', params: {} })} className="inline-block px-6 py-3 border border-gray-300 rounded-md text-sm">Learn More</button> </div> </div> <div className="lg:w-1/2"> <div className="w-full h-64 sm:h-80 rounded-xl bg-gray-200 flex items-center justify-center"> <span className="text-gray-500">Hero image (replace with product/scene)</span> </div> </div> </div> </div> </section>
+        .main-nav a {
+            margin: 0 1rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
 
-{/* Category strip */}
-  <section className="bg-white py-8">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-        {['Jackets','Footwear','Bags','Accessories','Fleece','New'].map((c) => (
-          <div key={c} className="p-4 bg-gray-50 rounded-lg text-center cursor-pointer" onClick={() => setRoute({ page:'catalog', params:{filter:c} })}>
-            <div className="h-20 flex items-center justify-center">{c}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+        .main-nav a:hover {
+            color: var(--accent-color);
+        }
 
-  {/* Featured products */}
-  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h2 className="text-2xl font-semibold mb-6">Featured Products</h2>
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-      {PRODUCTS.slice(0,6).map((p) => (
-        <article key={p.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="w-full h-48 bg-gray-100 flex items-center justify-center cursor-pointer" onClick={() => setRoute({ page: 'product', params: { id: p.id } })}>
-            <img src={p.img} alt={p.name} className="object-cover w-full h-full"/>
-          </div>
-          <div className="p-4">
-            <h3 className="font-medium">{p.name}</h3>
-            <p className="mt-2 text-sm text-gray-600">{priceFmt(p.price)}</p>
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => setRoute({ page: 'product', params: { id: p.id } })} className="flex-1 px-3 py-2 border rounded-md text-sm">View</button>
-              <button onClick={() => addToCart(p.id)} className="px-3 py-2 bg-black text-white rounded-md text-sm">Add</button>
+        .header-icons i {
+            font-size: 1.2rem;
+            margin-left: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .header-icons i:hover {
+            color: var(--accent-color);
+        }
+
+        /* 3. Hero Section */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 0 2rem;
+        }
+
+        /* Placeholder untuk video background */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1974&q=80') no-repeat center center/cover;
+            filter: brightness(0.6);
+            z-index: -1;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--secondary-text);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 1rem 2.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            border-radius: 5px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            background-color: #e66200;
+        }
+        
+        /* 4. Bagian Produk */
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 400px;
+            background-color: #444; /* Placeholder warna gambar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Ganti dengan tag <img> di HTML asli */
+        .product-image span {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        /* 5. Footer */
+        .main-footer {
+            background-color: #111;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            margin: 0 1rem;
+            color: var(--secondary-text);
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--text-color);
+        }
+        
+        .copyright {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <a href="#" class="logo">PHANEAR</a>
+        
+        <nav class="main-nav">
+            <a href="#">Koleksi</a>
+            <a href="#">Tentang Kami</a>
+            <a href="#">Lookbook</a>
+            <a href="#">Kontak</a>
+        </nav>
+
+        <div class="header-icons">
+            <i class="ri-search-line"></i>
+            <i class="ri-user-line"></i>
+            <i class="ri-shopping-bag-line"></i>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>Phanear: Abstractly Yours.</h1>
+                <p>Temukan ekspresi diri melalui desain yang melampaui batas.</p>
+                <a href="#" class="cta-button">Jelajahi Koleksi</a>
             </div>
-          </div>
-        </article>
-      ))}
-    </div>
-  </main>
-</div>
+        </section>
 
-);
+        <section class="featured-products">
+            <div class="container">
+                <h2 class="section-title">Produk Unggulan</h2>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-image"><span>[Gambar Produk 1]</span></div>
+                        <div class="product-info">
+                            <h3>Abstract Wave T-Shirt</h3>
+                            <span class="product-price">Rp 349.000</span>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image"><span>[Gambar Produk 2]</span></div>
+                        <div class="product-info">
+                            <h3>Monochrome Hoodie</h3>
+                            <span class="product-price">Rp 799.000</span>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-image"><span>[Gambar Produk 3]</span></div>
+                        <div class="product-info">
+                            <h3>Urban Explorer Jacket</h3>
+                            <span class="product-price">Rp 1.299.000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        </main>
 
-const Catalog = ({ filter }) => { const items = filter ? PRODUCTS.filter(p => p.category === filter) : PRODUCTS; return ( <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-semibold">Catalog {filter ? — ${filter} : ''}</h2> <div> <button onClick={() => setRoute({ page: 'home', params: {} })} className="text-sm underline">Back</button> </div> </div> <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6"> {items.map(p => ( <article key={p.id} className="bg-white rounded-lg shadow-sm overflow-hidden"> <div className="w-full h-48 bg-gray-100 flex items-center justify-center cursor-pointer" onClick={() => setRoute({ page: 'product', params: { id: p.id } })}> <img src={p.img} alt={p.name} className="object-cover w-full h-full"/> </div> <div className="p-4"> <h3 className="font-medium">{p.name}</h3> <p className="mt-2 text-sm text-gray-600">{priceFmt(p.price)}</p> <div className="mt-4 flex gap-2"> <button onClick={() => setRoute({ page: 'product', params: { id: p.id } })} className="flex-1 px-3 py-2 border rounded-md text-sm">View</button> <button onClick={() => addToCart(p.id)} className="px-3 py-2 bg-black text-white rounded-md text-sm">Add</button> </div> </div> </article> ))} </div> </main> ); };
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-links">
+                 <a href="#">Kebijakan Privasi</a>
+                 <a href="#">Syarat & Ketentuan</a>
+                 <a href="#">FAQ</a>
+            </div>
+            <p class="copyright">&copy; 2025 Phanear. All Rights Reserved.</p>
+        </div>
+    </footer>
 
-const ProductDetail = ({ id }) => { const p = PRODUCTS.find(x => x.id === id); if (!p) return <div className="p-8">Product not found.</div>; return ( <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> <div className="w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden"> <img src={p.img} alt={p.name} className="object-cover w-full h-full"/> </div> <div> <h1 className="text-2xl font-bold">{p.name}</h1> <div className="mt-4 text-xl text-gray-800">{priceFmt(p.price)}</div> <p className="mt-4 text-gray-600">{p.desc}</p> <div className="mt-6 flex items-center gap-4"> <button onClick={() => addToCart(p.id)} className="px-4 py-2 bg-black text-white rounded-md">Add to cart</button> <button onClick={() => setRoute({ page: 'cart', params: {} })} className="px-4 py-2 border rounded-md">Go to cart</button> </div> <div className="mt-6 text-sm text-gray-500">Kategori: {p.category}</div> </div> </div> </main> ); };
-
-const Cart = () => ( <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <h2 className="text-2xl font-semibold mb-6">Cart</h2> {cartItemsDetailed.length === 0 ? ( <div className="bg-white p-6 rounded-lg text-center">Your cart is empty. <button onClick={() => setRoute({ page: 'catalog', params: {} })} className="underline ml-2">Shop now</button></div> ) : ( <div className="bg-white p-6 rounded-lg"> <div className="space-y-4"> {cartItemsDetailed.map(item => ( <div key={item.productId} className="flex items-center gap-4"> <div className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-md overflow-hidden"> <img src={item.product.img} alt={item.product.name} className="object-cover w-full h-full"/> </div> <div className="flex-1"> <div className="font-medium">{item.product.name}</div> <div className="text-sm text-gray-600">{priceFmt(item.product.price)}</div> </div> <div className="flex items-center gap-2"> <input type="number" min={0} value={item.qty} onChange={(e) => updateQty(item.productId, Number(e.target.value))} className="w-16 border rounded-md p-1 text-center" /> <div className="w-32 text-right">{priceFmt(item.product.price * item.qty)}</div> </div> </div> ))} </div>
+</body>
+</html>
+ce)}</div> </div> <div className="flex items-center gap-2"> <input type="number" min={0} value={item.qty} onChange={(e) => updateQty(item.productId, Number(e.target.value))} className="w-16 border rounded-md p-1 text-center" /> <div className="w-32 text-right">{priceFmt(item.product.price * item.qty)}</div> </div> </div> ))} </div>
 
 <div className="mt-6 flex justify-between items-center">
         <div>
