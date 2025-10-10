@@ -1,0 +1,140 @@
+import React, { useState } from "react";
+
+// Phanear - Single-file React App (Expanded) // - Tailwind CSS assumed // - Single component that contains simple client-side "routing" (home, product, cart, checkout) // - Fake product dataset included; replace with your API or CMS // - Usage: Drop into a React app as PhanearApp.jsx and render <PhanearApp />
+
+export default function PhanearApp() { // --- Sample product data --- const PRODUCTS = [ { id: 1, name: "Phanear Summit Jacket", price: 1250000, desc: "Lightweight, windproof jacket for alpine conditions.", img: "/images/jacket.jpg", category: "Jackets" }, { id: 2, name: "Phanear Trail Pack 25L", price: 450000, desc: "Compact daypack with ventilated back panel.", img: "/images/pack.jpg", category: "Bags" }, { id: 3, name: "Phanear Trek Boots", price: 875000, desc: "Durable outsole and waterproof membrane.", img: "/images/boots.jpg", category: "Footwear" }, { id: 4, name: "Phanear Fleece", price: 350000, desc: "Cozy mid-layer for chilly evenings.", img: "/images/fleece.jpg", category: "Fleece" }, { id: 5, name: "Phanear Beanie", price: 125000, desc: "Warm knit beanie with logo patch.", img: "/images/beanie.jpg", category: "Accessories" }, { id: 6, name: "Phanear Hoodie", price: 299000, desc: "Everyday hoodie made from organic cotton.", img: "/images/hoodie.jpg", category: "Men" } ];
+
+// --- App state --- const [route, setRoute] = useState({ page: 'home', params: {} }); const [cart, setCart] = useState([]); // {productId, qty}
+
+// --- Helpers --- const priceFmt = (v) => { return v.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }); };
+
+const addToCart = (productId, qty = 1) => { setCart(prev => { const found = prev.find(p => p.productId === productId); if (found) return prev.map(p => p.productId === productId ? { ...p, qty: p.qty + qty } : p); return [...prev, { productId, qty }]; }); };
+
+const updateQty = (productId, qty) => { if (qty <= 0) { setCart(prev => prev.filter(p => p.productId !== productId)); } else { setCart(prev => prev.map(p => p.productId === productId ? { ...p, qty } : p)); } };
+
+const clearCart = () => setCart([]);
+
+const cartItemsDetailed = cart.map(item => { const product = PRODUCTS.find(p => p.id === item.productId); return { ...item, product }; });
+
+const cartTotal = cartItemsDetailed.reduce((s, it) => s + (it.product.price * it.qty), 0);
+
+// --- Simple "router" views --- const Nav = () => ( <header className="bg-white shadow"> <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div className="flex justify-between items-center py-4"> <div className="flex items-center gap-6"> <div onClick={() => setRoute({ page: 'home', params: {} })} className="flex items-center gap-2 cursor-pointer"> <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold">P</div> <span className="font-semibold text-lg">Phanear</span> </div> <nav className="hidden md:flex gap-6 text-sm text-gray-700"> <button onClick={() => setRoute({ page: 'home', params: {} })} className="hover:underline">Home</button> <button onClick={() => setRoute({ page: 'catalog', params: { filter: 'Men' } })} className="hover:underline">Men</button> <button onClick={() => setRoute({ page: 'catalog', params: { filter: 'Women' } })} className="hover:underline">Women</button> <button onClick={() => setRoute({ page: 'catalog', params: { filter: 'Bags' } })} className="hover:underline">Bags</button> <button onClick={() => setRoute({ page: 'sale', params: {} })} className="text-red-600 font-medium">Sale</button> </nav> </div> <div className="flex items-center gap-4"> <button className="text-sm">Search</button> <button className="text-sm">Account</button> <button onClick={() => setRoute({ page: 'cart', params: {} })} className="text-sm">Cart ({cart.reduce((s, i) => s + i.qty, 0)})</button> </div> </div> </div> </header> );
+
+const Home = () => ( <div> {/* Hero */} <section className="relative bg-white"> <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div className="flex flex-col lg:flex-row items-center gap-8 py-16"> <div className="lg:w-1/2"> <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight">Built for every outdoor story</h1> <p className="mt-4 text-lg text-gray-600">Discover Phanear — gear engineered for the climb, the trail, and everything in between.</p> <div className="mt-6 flex gap-3"> <button onClick={() => setRoute({ page: 'catalog', params: {} })} className="inline-block px-6 py-3 bg-black text-white rounded-md font-medium">Shop Now</button> <button onClick={() => setRoute({ page: 'story', params: {} })} className="inline-block px-6 py-3 border border-gray-300 rounded-md text-sm">Learn More</button> </div> </div> <div className="lg:w-1/2"> <div className="w-full h-64 sm:h-80 rounded-xl bg-gray-200 flex items-center justify-center"> <span className="text-gray-500">Hero image (replace with product/scene)</span> </div> </div> </div> </div> </section>
+
+{/* Category strip */}
+  <section className="bg-white py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+        {['Jackets','Footwear','Bags','Accessories','Fleece','New'].map((c) => (
+          <div key={c} className="p-4 bg-gray-50 rounded-lg text-center cursor-pointer" onClick={() => setRoute({ page:'catalog', params:{filter:c} })}>
+            <div className="h-20 flex items-center justify-center">{c}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Featured products */}
+  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h2 className="text-2xl font-semibold mb-6">Featured Products</h2>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      {PRODUCTS.slice(0,6).map((p) => (
+        <article key={p.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="w-full h-48 bg-gray-100 flex items-center justify-center cursor-pointer" onClick={() => setRoute({ page: 'product', params: { id: p.id } })}>
+            <img src={p.img} alt={p.name} className="object-cover w-full h-full"/>
+          </div>
+          <div className="p-4">
+            <h3 className="font-medium">{p.name}</h3>
+            <p className="mt-2 text-sm text-gray-600">{priceFmt(p.price)}</p>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setRoute({ page: 'product', params: { id: p.id } })} className="flex-1 px-3 py-2 border rounded-md text-sm">View</button>
+              <button onClick={() => addToCart(p.id)} className="px-3 py-2 bg-black text-white rounded-md text-sm">Add</button>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</div>
+
+);
+
+const Catalog = ({ filter }) => { const items = filter ? PRODUCTS.filter(p => p.category === filter) : PRODUCTS; return ( <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-semibold">Catalog {filter ? — ${filter} : ''}</h2> <div> <button onClick={() => setRoute({ page: 'home', params: {} })} className="text-sm underline">Back</button> </div> </div> <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6"> {items.map(p => ( <article key={p.id} className="bg-white rounded-lg shadow-sm overflow-hidden"> <div className="w-full h-48 bg-gray-100 flex items-center justify-center cursor-pointer" onClick={() => setRoute({ page: 'product', params: { id: p.id } })}> <img src={p.img} alt={p.name} className="object-cover w-full h-full"/> </div> <div className="p-4"> <h3 className="font-medium">{p.name}</h3> <p className="mt-2 text-sm text-gray-600">{priceFmt(p.price)}</p> <div className="mt-4 flex gap-2"> <button onClick={() => setRoute({ page: 'product', params: { id: p.id } })} className="flex-1 px-3 py-2 border rounded-md text-sm">View</button> <button onClick={() => addToCart(p.id)} className="px-3 py-2 bg-black text-white rounded-md text-sm">Add</button> </div> </div> </article> ))} </div> </main> ); };
+
+const ProductDetail = ({ id }) => { const p = PRODUCTS.find(x => x.id === id); if (!p) return <div className="p-8">Product not found.</div>; return ( <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> <div className="w-full h-96 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden"> <img src={p.img} alt={p.name} className="object-cover w-full h-full"/> </div> <div> <h1 className="text-2xl font-bold">{p.name}</h1> <div className="mt-4 text-xl text-gray-800">{priceFmt(p.price)}</div> <p className="mt-4 text-gray-600">{p.desc}</p> <div className="mt-6 flex items-center gap-4"> <button onClick={() => addToCart(p.id)} className="px-4 py-2 bg-black text-white rounded-md">Add to cart</button> <button onClick={() => setRoute({ page: 'cart', params: {} })} className="px-4 py-2 border rounded-md">Go to cart</button> </div> <div className="mt-6 text-sm text-gray-500">Kategori: {p.category}</div> </div> </div> </main> ); };
+
+const Cart = () => ( <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <h2 className="text-2xl font-semibold mb-6">Cart</h2> {cartItemsDetailed.length === 0 ? ( <div className="bg-white p-6 rounded-lg text-center">Your cart is empty. <button onClick={() => setRoute({ page: 'catalog', params: {} })} className="underline ml-2">Shop now</button></div> ) : ( <div className="bg-white p-6 rounded-lg"> <div className="space-y-4"> {cartItemsDetailed.map(item => ( <div key={item.productId} className="flex items-center gap-4"> <div className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-md overflow-hidden"> <img src={item.product.img} alt={item.product.name} className="object-cover w-full h-full"/> </div> <div className="flex-1"> <div className="font-medium">{item.product.name}</div> <div className="text-sm text-gray-600">{priceFmt(item.product.price)}</div> </div> <div className="flex items-center gap-2"> <input type="number" min={0} value={item.qty} onChange={(e) => updateQty(item.productId, Number(e.target.value))} className="w-16 border rounded-md p-1 text-center" /> <div className="w-32 text-right">{priceFmt(item.product.price * item.qty)}</div> </div> </div> ))} </div>
+
+<div className="mt-6 flex justify-between items-center">
+        <div>
+          <button onClick={() => clearCart()} className="text-sm underline">Clear cart</button>
+        </div>
+        <div className="text-right">
+          <div className="text-sm text-gray-600">Subtotal</div>
+          <div className="text-xl font-bold">{priceFmt(cartTotal)}</div>
+          <div className="mt-4">
+            <button onClick={() => setRoute({ page: 'checkout', params: {} })} className="px-4 py-2 bg-black text-white rounded-md">Checkout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</main>
+
+);
+
+const Checkout = () => { const [form, setForm] = useState({ name: '', email: '', address: '', city: '', postal: '' }); const handleSubmit = (e) => { e.preventDefault(); // This is a fake checkout: in production integrate payment gateway here alert('Order placed — this is a demo.'); clearCart(); setRoute({ page: 'home', params: {} }); }; return ( <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> <h2 className="text-2xl font-semibold mb-6">Checkout</h2> <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg space-y-4"> <div> <label className="block text-sm">Full name</label> <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border rounded-md p-2" /> </div> <div> <label className="block text-sm">Email</label> <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full border rounded-md p-2" /> </div> <div> <label className="block text-sm">Address</label> <input required value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full border rounded-md p-2" /> </div> <div className="grid grid-cols-2 gap-4"> <div> <label className="block text-sm">City</label> <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full border rounded-md p-2" /> </div> <div> <label className="block text-sm">Postal</label> <input required value={form.postal} onChange={(e) => setForm({ ...form, postal: e.target.value })} className="w-full border rounded-md p-2" /> </div> </div>
+
+<div className="text-right">
+        <button type="submit" className="px-4 py-2 bg-black text-white rounded-md">Place order</button>
+      </div>
+    </form>
+  </main>
+);
+
+};
+
+// Main render dispatcher let PageComponent = null; if (route.page === 'home') PageComponent = <Home />; else if (route.page === 'catalog') PageComponent = <Catalog filter={route.params.filter} />; else if (route.page === 'product') PageComponent = <ProductDetail id={route.params.id} />; else if (route.page === 'cart') PageComponent = <Cart />; else if (route.page === 'checkout') PageComponent = <Checkout />; else PageComponent = <Home />;
+
+return ( <div className="min-h-screen bg-gray-50 font-sans text-gray-900"> <Nav /> {PageComponent} <footer className="bg-gray-900 text-gray-200 mt-12"> <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-8"> <div> <div className="flex items-center gap-3"> <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold">P</div> <span className="text-lg font-semibold">Phanear</span> </div> <p className="mt-4 text-sm text-gray-400">Outdoor gear built to last. Phanear is a fictional template for demonstration.</p> </div>
+
+<div>
+        <h4 className="font-semibold">Shop</h4>
+        <ul className="mt-3 text-sm text-gray-400 space-y-2">
+          <li>Men</li>
+          <li>Women</li>
+          <li>Kids</li>
+          <li>Gear</li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-semibold">Customer</h4>
+        <ul className="mt-3 text-sm text-gray-400 space-y-2">
+          <li>Help Center</li>
+          <li>Warranty</li>
+          <li>Shipping</li>
+          <li>Returns</li>
+        </ul>
+      </div>
+    </div>
+    <div className="border-t border-gray-800 pt-6 text-center text-sm text-gray-500">© {new Date().getFullYear()} Phanear. All rights reserved.</div>
+  </footer>
+</div>
+
+); }
+
+/* Notes & next steps (edit in canvas):
+
+Replace image paths in PRODUCTS with real assets
+
+Integrate a backend or headless CMS (e.g., Shopify, Strapi) and fetch products
+
+Add real payment integration (Midtrans, Xendit, Stripe)
+
+Enhance accessibility (ARIA labels), i18n, and SEO
+
+Convert routing to react-router for real multi-page behavior */
+
+
