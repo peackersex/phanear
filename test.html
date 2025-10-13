@@ -1,40 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phanear - Clothing Brand</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Reset dan Styling Dasar */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phanear — Koleksi</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="video-hero">
+    <video id="bgVideo" autoplay muted loop playsinline>
+      <source src="media/hero.mp4" type="video/mp4">
+      <!-- fallback image -->
+    </video>
+    <div class="overlay">
+      <header class="header">
+        <img src="media/logo.svg" alt="Phanear" class="logo">
+        <nav class="nav">
+          <a href="#koleksi">Koleksi</a>
+          <a href="#about">Tentang</a>
+          <a href="#kontak">Kontak</a>
+        </nav>
+      </header>
 
-        :root {
-            --primary: #1a1a1a;
-            --secondary: #f5f5f5;
-            --accent: #8b7355;
-            --text: #333;
-            --light-text: #777;
-        }
+      <main class="hero-content">
+        <h1>Phanear</h1>
+        <p>Streetwear berkualitas — desain minimal, bahan premium.</p>
+        <div class="cta">
+          <a class="btn" href="#koleksi">Lihat Koleksi</a>
+          <a class="btn ghost" href="#kontak">Hubungi</a>
+        </div>
+      </main>
+      <div class="floating-card" id="floatingCard">New Drop</div>
+    </div>
+  </div>
 
-        body {
-            background-color: var(--secondary);
-            color: var(--text);
-            line-height: 1.6;
-        }
+  <section id="koleksi" class="section">
+    <h2>Koleksi</h2>
+    <div class="grid">
+      <!-- contoh item -->
+      <article class="card">
+        <img src="media/product1.jpg" alt="">
+        <h3>Nama Produk</h3>
+        <p>Rp 199.000</p>
+      </article>
+      <!-- tambahkan lainya -->
+    </div>
+  </section>
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
+  <section id="about" class="section">
+    <h2>Tentang</h2>
+    <p>Deskripsi brand singkat.</p>
+  </section>
 
+  <section id="kontak" class="section">
+    <h2>Kontak</h2>
+    <form id="contactForm">
+      <input name="name" placeholder="Nama" required>
+      <input name="email" placeholder="Email" type="email" required>
+      <textarea name="message" placeholder="Pesan" required></textarea>
+      <button type="submit">Kirim</button>
+    </form>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
         /* Header */
         header {
             background-color: var(--primary);
